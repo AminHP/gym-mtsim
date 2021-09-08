@@ -115,6 +115,8 @@ class MtSimulator:
     def create_order(self, order_type: OrderType, symbol: str, volume: float, fee: float=0.0005) -> Order:
         self._check_current_time()
         self._check_volume(symbol, volume)
+        if fee < 0.:
+            raise ValueError(f"negative fee '{fee}'")
 
         if self.hedge:
             return self._create_hedged_order(order_type, symbol, volume, fee)
