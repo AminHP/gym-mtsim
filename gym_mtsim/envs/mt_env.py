@@ -156,7 +156,8 @@ class MtEnv(gym.Env):
                 self.simulator.close_order(order)
                 closed_orders_info[symbol].append(dict(
                     order_id=order.id, symbol=order.symbol, order_type=order.type,
-                    volume=order.volume, profit=order.profit, fee=order.fee,
+                    volume=order.volume, fee=order.fee,
+                    margin=order.margin, profit=order.profit,
                     close_probability=close_orders_probability[orders_to_close_index][j],
                 ))
 
@@ -164,7 +165,8 @@ class MtEnv(gym.Env):
             orders_info[symbol] = dict(
                 order_id=None, symbol=symbol, hold_probability=hold_probability,
                 hold=hold, volume=volume, capacity=orders_capacity, order_type=None,
-                modified_volume=modified_volume, fee=None, error=None,
+                modified_volume=modified_volume, fee=float('nan'), margin=float('nan'),
+                error='',
             )
 
             if self.simulator.hedge and orders_capacity == 0:
@@ -177,15 +179,14 @@ class MtEnv(gym.Env):
 
                 try:
                     order = self.simulator.create_order(order_type, symbol, modified_volume, fee)
-                    order_id = order.id
-                    error = ''
+                    new_info = dict(
+                        order_id=order.id, order_type=order_type,
+                        fee=fee, margin=order.margin,
+                    )
                 except ValueError as e:
-                    order_id = None
-                    error = str(e)
+                    new_info = dict(error=str(e))
 
-                orders_info[symbol].update(dict(
-                    order_id=order_id, order_type=order_type, fee=fee, error=error,
-                ))
+                orders_info[symbol].update(new_info)
 
         return orders_info, closed_orders_info
 
@@ -402,13 +403,14 @@ class MtEnv(gym.Env):
                     color = None
                     size = 8 + 22 * (order['modified_volume'] / trade_max_volume)
                     info = (
-                        f"order id: {order['order_id']}<br>"
+                        f"order id: {order['order_id'] or ''}<br>"
                         f"hold probability: {order['hold_probability']:.4f}<br>"
                         f"hold: {order['hold']}<br>"
                         f"volume: {order['volume']:.6f}<br>"
                         f"modified volume: {order['modified_volume']:.4f}<br>"
-                        f"fee: {order['fee']}<br>"
-                        f"error: {order['error'] or ''}"
+                        f"fee: {order['fee']:.6f}<br>"
+                        f"margin: {order['margin']:.6f}<br>"
+                        f"error: {order['error']}"
                     )
 
                     if order['order_type'] == OrderType.Buy:
@@ -432,6 +434,7 @@ class MtEnv(gym.Env):
                             f"order id: {order['order_id']}<br>"
                             f"order type: {order['order_type'].name}<br>"
                             f"close probability: {order['close_probability']:.4f}<br>"
+                            f"margin: {order['margin']:.6f}<br>"
                             f"profit: {order['profit']:.6f}"
                         )
                         info.append(info_i)
