@@ -144,9 +144,7 @@ class MtEnv(gym.Env):
             hold = bool(hold_probability > self.hold_threshold)
             modified_volume = self._get_modified_volume(symbol, volume)
 
-            symbol_orders = list(filter(
-                lambda order: order.symbol == symbol, self.simulator.orders
-            ))
+            symbol_orders = self.simulator.symbol_orders(symbol)
             orders_to_close_index = np.where(
                 close_orders_probability[:len(symbol_orders)] > self.close_threshold
             )[0]
@@ -219,7 +217,7 @@ class MtEnv(gym.Env):
 
         orders = np.zeros(self.observation_space['orders'].shape)
         for i, symbol in enumerate(self.trading_symbols):
-            symbol_orders = filter(lambda order: order.symbol == symbol, self.simulator.orders)
+            symbol_orders = self.simulator.symbol_orders(symbol)
             for j, order in enumerate(symbol_orders):
                 orders[i, j] = [order.entry_price, order.volume, order.profit]
 

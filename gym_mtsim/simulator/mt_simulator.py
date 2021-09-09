@@ -112,6 +112,13 @@ class MtSimulator:
         return df.loc[time]
 
 
+    def symbol_orders(self, symbol: str) -> List[Order]:
+        symbol_orders = list(filter(
+            lambda order: order.symbol == symbol, self.orders
+        ))
+        return symbol_orders
+
+
     def create_order(self, order_type: OrderType, symbol: str, volume: float, fee: float=0.0005) -> Order:
         self._check_current_time()
         self._check_volume(symbol, volume)
@@ -153,7 +160,7 @@ class MtSimulator:
         if symbol not in map(lambda order: order.symbol, self.orders):
             return self._create_hedged_order(order_type, symbol, volume, fee)
 
-        old_order: Order = next(filter(lambda order: order.symbol == symbol, self.orders))
+        old_order: Order = self.symbol_orders(symbol)[0]
 
         if old_order.type == order_type:
             new_order = self._create_hedged_order(order_type, symbol, volume, fee)
