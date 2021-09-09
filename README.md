@@ -443,9 +443,9 @@ env = MtEnv(
     hold_threshold=0.5,
     close_threshold=0.5,
     fee=lambda symbol: {
-        'GBPCAD': np.random.normal(0.0007, 0.0005),
-        'EURUSD': np.random.normal(0.0002, 0.0003),
-        'USDJPY': np.random.normal(0.02, 0.003),
+        'GBPCAD': max(0., np.random.normal(0.0007, 0.00005)),
+        'EURUSD': max(0., np.random.normal(0.0002, 0.00003)),
+        'USDJPY': max(0., np.random.normal(0.02, 0.003)),
     }[symbol],
     symbol_max_orders=2,
     multiprocessing_processes=2
