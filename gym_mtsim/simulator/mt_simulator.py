@@ -100,9 +100,9 @@ class MtSimulator:
         if time in df.index:
             return time
         try:
-            i = df.index.get_loc(time, method='ffill')
+            i, = df.index.get_indexer([time], method='ffill')
         except KeyError:
-            i = df.index.get_loc(time, method='bfill')
+            i, = df.index.get_indexer([time], method='bfill')
         return df.index[i]
 
 
