@@ -3,7 +3,7 @@ from typing import List, Tuple, Dict, Any, Optional
 import os
 import pickle
 from datetime import datetime, timedelta
-
+import sys
 import numpy as np
 import pandas as pd
 
@@ -47,7 +47,7 @@ class MtSimulator:
     def margin_level(self) -> float:
         margin = round(self.margin, 6)
         if margin == 0.:
-            return np.inf
+            return sys.float_info.max
         return self.equity / margin
 
 
