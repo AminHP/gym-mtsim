@@ -16,7 +16,7 @@ import gym
 from gym import spaces
 from gym.utils import seeding
 import sys
-from gym_mtsim.simulator import MtSimulator, OrderType
+from ..simulator import MtSimulator, OrderType
 
 
 class MtEnv(gym.Env):
@@ -30,7 +30,6 @@ class MtEnv(gym.Env):
             fee: Union[float, Callable[[str], float]]=0.0005,
             symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None
         ) -> None:
-        self.runshit = False
         # validations
         assert len(original_simulator.symbols_data) > 0, "no data available"
         assert len(original_simulator.symbols_info) > 0, "no data available"
@@ -51,8 +50,6 @@ class MtEnv(gym.Env):
         assert len(time_points) > window_size, "not enough time points provided"
 
         # attributes
-        self.runcount = 0
-        self.punishcount = 0
         self.seed()
         self.original_simulator = original_simulator
         self.trading_symbols = trading_symbols
@@ -100,8 +97,6 @@ class MtEnv(gym.Env):
 
 
     def reset(self) -> Dict[str, np.ndarray]:
-        self.runcount = 0
-        self.punishcount = 0
         self._done = False
         self._current_tick = self._start_tick
         self.simulator = copy.deepcopy(self.original_simulator)
@@ -113,7 +108,6 @@ class MtEnv(gym.Env):
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, Dict[str, Any]]:
         orders_info, closed_orders_info = self._apply_action(action)
         self._current_tick += 1
-        self.runcount += 1
                  
         if self._current_tick == self._end_tick:
             self._done = True
@@ -239,10 +233,7 @@ class MtEnv(gym.Env):
     def _calculate_reward(self) -> float:
         prev_equity = self.history[-1]['equity']
         current_equity = self.simulator.equity
-        orderscount = len(self.render('human')['orders']) * 4
-        step_reward = current_equity - prev_equity - orderscount
-        if(self.runshit and step_reward < 0):
-            return -1
+        step_reward = current_equity - prev_equity 
         return step_reward
         
 
