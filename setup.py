@@ -17,7 +17,7 @@ setup(
         'plotly>=5.3.1',
         'nbformat>=5.1.3',
         'pathos>=0.2.8',
-        'MetaTrader5>=5.0.35',
+        'MetaTrader5>=5.0.35; platform_system == "Windows"',
     ],
 
     package_data={

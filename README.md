@@ -108,7 +108,7 @@ This is the core class that simulates the main parts of MetaTrader. Most of its 
 
 * Methods:
 
-    > `download_data`: Downloads required data from MetaTrader for a list of symbols in a time range. This method can be overridden in order to download data from servers other than MetaTrader.
+    > `download_data`: Downloads required data from MetaTrader for a list of symbols in a time range. This method can be overridden in order to download data from servers other than MetaTrader. *Note that this method only works on Windows, as the MetaTrader5 Python package is not available on other platforms.*
     >
     > `save_symbols`: Saves the downloaded symbols' data to a file.
     >
@@ -783,7 +783,7 @@ env.render('advanced_figure', time_format="%Y-%m-%d")
 
 ## References
 
-* [https://www.mql5.com/en/docs/integration/python_metatrader5](https://www.mql5.com/en/docs/integration/python_metatrader5)
+* [https://www.mql5.com/en/docs/python_metatrader5](https://www.mql5.com/en/docs/python_metatrader5)
 * [https://www.metatrader5.com/en/terminal/help/trading_advanced/margin_forex](https://www.metatrader5.com/en/terminal/help/trading_advanced/margin_forex)
 * [https://admiralmarkets.com/education/articles/forex-basics/margin-in-forex-trading-margin-level-vs-margin-call](https://admiralmarkets.com/education/articles/forex-basics/margin-in-forex-trading-margin-level-vs-margin-call)
 * [https://www.investopedia.com/articles/forex/12/calculating-profits-and-losses-of-forex-trades.asp](https://www.investopedia.com/articles/forex/12/calculating-profits-and-losses-of-forex-trades.asp)
