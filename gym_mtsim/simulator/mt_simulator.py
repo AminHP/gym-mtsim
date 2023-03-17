@@ -47,7 +47,7 @@ class MtSimulator:
     def margin_level(self) -> float:
         margin = round(self.margin, 6)
         if margin == 0.:
-            return np.inf
+            return float('inf')
         return self.equity / margin
 
 

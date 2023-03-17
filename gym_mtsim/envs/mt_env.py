@@ -68,17 +68,18 @@ class MtEnv(gym.Env):
 
         # spaces
         self.action_space = spaces.Box(
-            low=-1e10, high=1e10, dtype=np.float64,
+            low=-1e2, high=1e2, dtype=np.float64,
             shape=(len(self.trading_symbols) * (self.symbol_max_orders + 2),)
         )  # symbol -> [close_order_i(logit), hold(logit), volume]
 
+        INF = 1e10
         self.observation_space = spaces.Dict({
-            'balance': spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-            'equity': spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-            'margin': spaces.Box(low=-np.inf, high=np.inf, shape=(1,), dtype=np.float64),
-            'features': spaces.Box(low=-np.inf, high=np.inf, shape=self.features_shape, dtype=np.float64),
+            'balance': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'equity': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'margin': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'features': spaces.Box(low=-INF, high=INF, shape=self.features_shape, dtype=np.float64),
             'orders': spaces.Box(
-                low=-np.inf, high=np.inf, dtype=np.float64,
+                low=-INF, high=INF, dtype=np.float64,
                 shape=(len(self.trading_symbols), self.symbol_max_orders, 3)
             )  # symbol, order_i -> [entry_price, volume, profit]
         })
