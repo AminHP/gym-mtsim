@@ -15,7 +15,7 @@ import plotly.graph_objects as go
 import gym
 from gym import spaces
 from gym.utils import seeding
-import sys
+
 from ..simulator import MtSimulator, OrderType
 
 
@@ -30,6 +30,7 @@ class MtEnv(gym.Env):
             fee: Union[float, Callable[[str], float]]=0.0005,
             symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None
         ) -> None:
+
         # validations
         assert len(original_simulator.symbols_data) > 0, "no data available"
         assert len(original_simulator.symbols_info) > 0, "no data available"
@@ -67,17 +68,18 @@ class MtEnv(gym.Env):
 
         # spaces
         self.action_space = spaces.Box(
-            low=-1e10, high=1e10, dtype=np.float64,
+            low=-1e2, high=1e2, dtype=np.float64,
             shape=(len(self.trading_symbols) * (self.symbol_max_orders + 2),)
         )  # symbol -> [close_order_i(logit), hold(logit), volume]
 
+        INF = 1e10
         self.observation_space = spaces.Dict({
-            'balance': spaces.Box(low=-sys.float_info.max, high=sys.float_info.max, shape=(1,), dtype=np.float64),
-            'equity': spaces.Box(low=-sys.float_info.max, high=sys.float_info.max, shape=(1,), dtype=np.float64),
-            'margin': spaces.Box(low=-sys.float_info.max, high=sys.float_info.max, shape=(1,), dtype=np.float64),
-            'features': spaces.Box(low=-sys.float_info.max, high=sys.float_info.max, shape=self.features_shape, dtype=np.float64),
+            'balance': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'equity': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'margin': spaces.Box(low=-INF, high=INF, shape=(1,), dtype=np.float64),
+            'features': spaces.Box(low=-INF, high=INF, shape=self.features_shape, dtype=np.float64),
             'orders': spaces.Box(
-                low=-sys.float_info.max, high=sys.float_info.max, dtype=np.float64,
+                low=-INF, high=INF, dtype=np.float64,
                 shape=(len(self.trading_symbols), self.symbol_max_orders, 3)
             )  # symbol, order_i -> [entry_price, volume, profit]
         })
@@ -107,8 +109,8 @@ class MtEnv(gym.Env):
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, Dict[str, Any]]:
         orders_info, closed_orders_info = self._apply_action(action)
+
         self._current_tick += 1
-                 
         if self._current_tick == self._end_tick:
             self._done = True
 
@@ -116,7 +118,7 @@ class MtEnv(gym.Env):
         self.simulator.tick(dt)
 
         step_reward = self._calculate_reward()
-        
+
         info = self._create_info(
             orders=orders_info, closed_orders=closed_orders_info, step_reward=step_reward
         )
@@ -233,9 +235,8 @@ class MtEnv(gym.Env):
     def _calculate_reward(self) -> float:
         prev_equity = self.history[-1]['equity']
         current_equity = self.simulator.equity
-        step_reward = current_equity - prev_equity 
+        step_reward = current_equity - prev_equity
         return step_reward
-        
 
 
     def _create_info(self, **kwargs: Any) -> Dict[str, Any]:
