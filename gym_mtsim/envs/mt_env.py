@@ -12,23 +12,24 @@ import matplotlib.cm as plt_cm
 import matplotlib.colors as plt_colors
 import plotly.graph_objects as go
 
-import gym
-from gym import spaces
-from gym.utils import seeding
+import gymnasium as gym
+from gymnasium import spaces
+from gymnasium.utils import seeding
 
 from ..simulator import MtSimulator, OrderType
 
 
 class MtEnv(gym.Env):
 
-    metadata = {'render.modes': ['human', 'simple_figure', 'advanced_figure']}
+    metadata = {'render_modes': ['human', 'simple_figure', 'advanced_figure']}
 
     def __init__(
             self, original_simulator: MtSimulator, trading_symbols: List[str],
             window_size: int, time_points: Optional[List[datetime]]=None,
             hold_threshold: float=0.5, close_threshold: float=0.5,
             fee: Union[float, Callable[[str], float]]=0.0005,
-            symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None
+            symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None,
+            render_mode=None
         ) -> None:
 
         # validations
@@ -49,6 +50,9 @@ class MtEnv(gym.Env):
         if time_points is None:
             time_points = original_simulator.symbols_data[trading_symbols[0]].index.to_pydatetime().tolist()
         assert len(time_points) > window_size, "not enough time points provided"
+
+
+        self.render_mode = render_mode
 
         # attributes
         self.seed()
@@ -98,13 +102,14 @@ class MtEnv(gym.Env):
         return [seed]
 
 
-    def reset(self) -> Dict[str, np.ndarray]:
+    def reset(self, seed=None, options=None) -> Dict[str, np.ndarray]:
+        super().reset(seed=seed)
         self._done = False
         self._current_tick = self._start_tick
         self.simulator = copy.deepcopy(self.original_simulator)
         self.simulator.current_time = self.time_points[self._current_tick]
         self.history = [self._create_info()]
-        return self._get_observation()
+        return self._get_observation(), self._create_info()
 
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, Dict[str, Any]]:
@@ -125,7 +130,7 @@ class MtEnv(gym.Env):
         observation = self._get_observation()
         self.history.append(info)
 
-        return observation, step_reward, self._done, info
+        return observation, step_reward, self._done, False, info
 
 
     def _apply_action(self, action: np.ndarray) -> Tuple[Dict, Dict]:
