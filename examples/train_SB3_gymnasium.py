@@ -1,7 +1,3 @@
-# stable-baselines3, Add Gymnasium support: 
-# https://github.com/DLR-RM/stable-baselines3/pull/1327
-# pip install git+https://github.com/DLR-RM/stable-baselines3@feat/gymnasium-support
-
 import os
 import sys
 sys.path.append('./gym-mtsim') # Optionally set path correctly (if not installed via 'pip' -> ModuleNotFoundError)
@@ -16,11 +12,6 @@ import matplotlib.pyplot as plt
 
 # RL Algorithms: https://stable-baselines3.readthedocs.io/en/master/guide/algos.html
 from stable_baselines3 import A2C, PPO
-
-# Implemented in SB3 Contrib 
-# install SB3 Contrib + gymnasium-support
-# pip install git+https://github.com/Stable-Baselines-Team/stable-baselines3-contrib@feat/gymnasium-support
-from sb3_contrib import RecurrentPPO, TRPO, MaskablePPO
 
 from stable_baselines3.common.callbacks import BaseCallback
 from tqdm import tqdm
@@ -185,13 +176,12 @@ plot_data['rnd_rewards'] = rewards
 plot_settings['rnd_rewards'] = {'label': label}
 
 
-learning_timesteps_list_in_K = [1, 3, 5]
+
+learning_timesteps_list_in_K = [25]
 #learning_timesteps_list_in_K = [50, 250, 500]
-#learning_timesteps_list_in_K = [500, 1000, 3000, 5000]
 
 # RL Algorithms: https://stable-baselines3.readthedocs.io/en/master/guide/algos.html
-#model_class_list = [A2C, PPO]
-model_class_list = [A2C, PPO, RecurrentPPO, TRPO]
+model_class_list = [A2C, PPO]
 
 for timesteps in learning_timesteps_list_in_K:
 
@@ -234,92 +224,3 @@ plt.ylabel('reward')
 plt.title('Random vs. SB3 Agents')
 plt.legend()
 plt.show()
-
-
-"""
-
-Results for:
-- learning_timesteps_list_in_K = [500, 1000, 3000, 5000]
-- model_class_list = [A2C, PPO]
-
---------------------------------------------------------------------------------
-RANDOM actions
-Balance at start     :  50000.000
-Min. Reward          : -18089.240
-Avg. Reward          :  -1679.978
-Max. Reward          :  15524.900
-Avg. Balance at end  :  48320.022 (-3.360 %)
-
---------------------------------------------------------------------------------
-model <class 'stable_baselines3.a2c.a2c.A2C'>
-model.learn(): 500000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :   2972.891
-Avg. Reward          :   3308.991
-Max. Reward          :   3609.601
-Avg. Balance at end  :  53308.991 (+6.618 %)
-
---------------------------------------------------------------------------------
-model <class 'stable_baselines3.ppo.ppo.PPO'>
-model.learn(): 500000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :    726.590
-Avg. Reward          :   1156.107
-Max. Reward          :   1607.530
-Avg. Balance at end  :  51156.107 (+2.312 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.a2c.a2c.A2C'>
-model.learn(): 1000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :    943.150
-Avg. Reward          :   1167.195
-Max. Reward          :   1398.490
-Avg. Balance at end  :  51167.195 (+2.334 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.ppo.ppo.PPO'>
-model.learn(): 1000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :   1182.670
-Avg. Reward          :   1669.154
-Max. Reward          :   2267.010
-Avg. Balance at end  :  51669.154 (+3.338 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.a2c.a2c.A2C'>
-model.learn(): 3000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :   1619.480
-Avg. Reward          :   1833.296
-Max. Reward          :   2024.420
-Avg. Balance at end  :  51833.296 (+3.667 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.ppo.ppo.PPO'>
-model.learn(): 3000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :   2534.469
-Avg. Reward          :   2973.081
-Max. Reward          :   3547.970
-Avg. Balance at end  :  52973.081 (+5.946 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.a2c.a2c.A2C'>
-model.learn(): 5000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :  13704.384
-Avg. Reward          :  13793.400
-Max. Reward          :  13900.946
-Avg. Balance at end  :  63793.400 (+27.587 %)
---------------------------------------------------------------------------------
-
-model <class 'stable_baselines3.ppo.ppo.PPO'>
-model.learn(): 5000000 timesteps ...
-Balance at start     :  50000.000
-Min. Reward          :   3159.979
-Avg. Reward          :   3600.301
-Max. Reward          :   4110.480
-Avg. Balance at end  :  53600.301 (+7.201 %)
-
-"""
