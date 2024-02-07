@@ -1,3 +1,4 @@
+.DS_Store
 .idea/
 .vscode/
 .ipynb_checkpoints/
@@ -7,4 +8,3 @@ venv*/
 dist/
 *.egg-info/
 build/
-.DS_Store
