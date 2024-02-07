@@ -9,15 +9,15 @@ setup(
     author_email='mdan.hagh@gmail.com',
 
     install_requires=[
-        'gym>=0.19.0',
-        'numpy>=1.19.5',
-        'scipy>=1.7.1',
-        'pandas>=1.3.1',
-        'matplotlib>=3.4.2',
-        'plotly>=5.3.1',
-        'nbformat>=5.1.3',
-        'pathos>=0.2.8',
-        'MetaTrader5>=5.0.35; platform_system == "Windows"',
+        'gymnasium>=0.29.1',
+        'numpy>=1.25.2',
+        'scipy>=1.11.2',
+        'pandas>=2.0.3',
+        'matplotlib>=3.8.2',
+        'plotly>=5.16.1',
+        'nbformat>=5.9.2',
+        'pathos>=0.3.1',
+        'MetaTrader5>=5.0.45; platform_system == "Windows"',
     ],
 
     package_data={

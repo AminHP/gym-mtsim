@@ -12,23 +12,23 @@ import matplotlib.cm as plt_cm
 import matplotlib.colors as plt_colors
 import plotly.graph_objects as go
 
-import gym
-from gym import spaces
-from gym.utils import seeding
+import gymnasium as gym
+from gymnasium import spaces
 
 from ..simulator import MtSimulator, OrderType
 
 
 class MtEnv(gym.Env):
 
-    metadata = {'render.modes': ['human', 'simple_figure', 'advanced_figure']}
+    metadata = {'render_modes': ['human', 'simple_figure', 'advanced_figure']}
 
     def __init__(
             self, original_simulator: MtSimulator, trading_symbols: List[str],
             window_size: int, time_points: Optional[List[datetime]]=None,
             hold_threshold: float=0.5, close_threshold: float=0.5,
             fee: Union[float, Callable[[str], float]]=0.0005,
-            symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None
+            symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None,
+            render_mode: Optional[str] = None,
         ) -> None:
 
         # validations
@@ -50,8 +50,9 @@ class MtEnv(gym.Env):
             time_points = original_simulator.symbols_data[trading_symbols[0]].index.to_pydatetime().tolist()
         assert len(time_points) > window_size, "not enough time points provided"
 
+        self.render_mode = render_mode
+
         # attributes
-        self.seed()
         self.original_simulator = original_simulator
         self.trading_symbols = trading_symbols
         self.window_size = window_size
@@ -87,24 +88,25 @@ class MtEnv(gym.Env):
         # episode
         self._start_tick = self.window_size - 1
         self._end_tick = len(self.time_points) - 1
-        self._done: bool = NotImplemented
+        self._truncated: bool = NotImplemented
         self._current_tick: int = NotImplemented
         self.simulator: MtSimulator = NotImplemented
         self.history: List[Dict[str, Any]] = NotImplemented
 
 
-    def seed(self, seed: Optional[int]=None) -> List[int]:
-        self.np_random, seed = seeding.np_random(seed)
-        return [seed]
+    def reset(self, seed=None, options=None) -> Dict[str, np.ndarray]:
+        super().reset(seed=seed, options=options)
 
-
-    def reset(self) -> Dict[str, np.ndarray]:
-        self._done = False
+        self._truncated = False
         self._current_tick = self._start_tick
         self.simulator = copy.deepcopy(self.original_simulator)
         self.simulator.current_time = self.time_points[self._current_tick]
         self.history = [self._create_info()]
-        return self._get_observation()
+
+        observation = self._get_observation()
+        info = self._create_info()
+
+        return observation, info 
 
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, Dict[str, Any]]:
@@ -112,7 +114,7 @@ class MtEnv(gym.Env):
 
         self._current_tick += 1
         if self._current_tick == self._end_tick:
-            self._done = True
+            self._truncated = True
 
         dt = self.time_points[self._current_tick] - self.time_points[self._current_tick - 1]
         self.simulator.tick(dt)
@@ -125,7 +127,7 @@ class MtEnv(gym.Env):
         observation = self._get_observation()
         self.history.append(info)
 
-        return observation, step_reward, self._done, info
+        return observation, step_reward, False, self._truncated, info
 
 
     def _apply_action(self, action: np.ndarray) -> Tuple[Dict, Dict]:
