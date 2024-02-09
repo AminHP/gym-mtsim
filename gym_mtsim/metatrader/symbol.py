@@ -20,10 +20,8 @@ class SymbolInfo:
         self.volume_max: float = info.volume_max
         self.volume_step: float = info.volume_step
 
-
     def __str__(self) -> str:
         return f'{self.market}/{self.name}'
-
 
     def _get_market(self, info: MtSymbolInfo) -> str:
         mapping = {

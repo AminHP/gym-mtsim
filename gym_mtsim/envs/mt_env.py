@@ -23,14 +23,18 @@ class MtEnv(gym.Env):
     metadata = {'render_modes': ['human', 'simple_figure', 'advanced_figure']}
 
     def __init__(
-            self, original_simulator: MtSimulator, trading_symbols: List[str],
-            window_size: int, time_points: Optional[List[datetime]]=None,
-            hold_threshold: float=0.5, close_threshold: float=0.5,
-            fee: Union[float, Callable[[str], float]]=0.0005,
-            symbol_max_orders: int=1, multiprocessing_processes: Optional[int]=None,
-            render_mode: Optional[str] = None,
-        ) -> None:
-
+        self,
+        original_simulator: MtSimulator,
+        trading_symbols: List[str],
+        window_size: int,
+        time_points: Optional[List[datetime]] = None,
+        hold_threshold: float = 0.5,
+        close_threshold: float = 0.5,
+        fee: Union[float, Callable[[str], float]] = 0.0005,
+        symbol_max_orders: int = 1,
+        multiprocessing_processes: Optional[int] = None,
+        render_mode: Optional[str] = None,
+    ) -> None:
         # validations
         assert len(original_simulator.symbols_data) > 0, "no data available"
         assert len(original_simulator.symbols_info) > 0, "no data available"
@@ -93,7 +97,6 @@ class MtEnv(gym.Env):
         self.simulator: MtSimulator = NotImplemented
         self.history: List[Dict[str, Any]] = NotImplemented
 
-
     def reset(self, seed=None, options=None) -> Dict[str, np.ndarray]:
         super().reset(seed=seed, options=options)
 
@@ -106,8 +109,7 @@ class MtEnv(gym.Env):
         observation = self._get_observation()
         info = self._create_info()
 
-        return observation, info 
-
+        return observation, info
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, Dict[str, Any]]:
         orders_info, closed_orders_info = self._apply_action(action)
@@ -128,7 +130,6 @@ class MtEnv(gym.Env):
         self.history.append(info)
 
         return observation, step_reward, False, self._truncated, info
-
 
     def _apply_action(self, action: np.ndarray) -> Tuple[Dict, Dict]:
         orders_info = {}
@@ -191,7 +192,6 @@ class MtEnv(gym.Env):
 
         return orders_info, closed_orders_info
 
-
     def _get_prices(self, keys: List[str]=['Close', 'Open']) -> Dict[str, np.ndarray]:
         prices = {}
 
@@ -208,12 +208,10 @@ class MtEnv(gym.Env):
 
         return prices
 
-
     def _process_data(self) -> np.ndarray:
         data = self.prices
         signal_features = np.column_stack(list(data.values()))
         return signal_features
-
 
     def _get_observation(self) -> Dict[str, np.ndarray]:
         features = self.signal_features[(self._current_tick-self.window_size+1):(self._current_tick+1)]
@@ -233,13 +231,11 @@ class MtEnv(gym.Env):
         }
         return observation
 
-
     def _calculate_reward(self) -> float:
         prev_equity = self.history[-1]['equity']
         current_equity = self.simulator.equity
         step_reward = current_equity - prev_equity
         return step_reward
-
 
     def _create_info(self, **kwargs: Any) -> Dict[str, Any]:
         info = {k: v for k, v in kwargs.items()}
@@ -250,7 +246,6 @@ class MtEnv(gym.Env):
         info['margin_level'] = self.simulator.margin_level
         return info
 
-
     def _get_modified_volume(self, symbol: str, volume: float) -> float:
         si = self.simulator.symbols_info[symbol]
         v = abs(volume)
@@ -258,14 +253,12 @@ class MtEnv(gym.Env):
         v = round(v / si.volume_step) * si.volume_step
         return v
 
-
     def render(self, mode: str='human', **kwargs: Any) -> Any:
         if mode == 'simple_figure':
             return self._render_simple_figure(**kwargs)
         if mode == 'advanced_figure':
             return self._render_advanced_figure(**kwargs)
         return self.simulator.get_state(**kwargs)
-
 
     def _render_simple_figure(
         self, figsize: Tuple[float, float]=(14, 6), return_figure: bool=False
@@ -334,12 +327,12 @@ class MtEnv(gym.Env):
 
         plt.show()
 
-
     def _render_advanced_figure(
-            self, figsize: Tuple[float, float]=(1400, 600), time_format: str="%Y-%m-%d %H:%m",
-            return_figure: bool=False
-        ) -> Any:
-
+        self,
+        figsize: Tuple[float, float] = (1400, 600),
+        time_format: str = "%Y-%m-%d %H:%m",
+        return_figure: bool = False,
+    ) -> Any:
         fig = go.Figure()
 
         cmap_colors = np.array(plt_cm.tab10.colors)[[0, 1, 4, 5, 6, 8]]
@@ -495,7 +488,6 @@ class MtEnv(gym.Env):
             return fig
 
         fig.show()
-
 
     def close(self) -> None:
         plt.close()

@@ -15,17 +15,22 @@ from .exceptions import SymbolNotFound, OrderNotFound
 class MtSimulator:
 
     def __init__(
-            self, unit: str='USD', balance: float=10000., leverage: float=100.,
-            stop_out_level: float=0.2, hedge: bool=True, symbols_filename: Optional[str]=None
-        ) -> None:
-
+        self,
+        unit: str = 'USD',
+        balance: float = 10000.,
+        leverage: float = 100.,
+        stop_out_level: float = 0.2,
+        hedge: bool = True,
+        symbols_filename: Optional[str] = None,
+    ) -> None:
         self.unit = unit
         self.balance = balance
         self.equity = balance
-        self.margin = 0.
         self.leverage = leverage
         self.stop_out_level = stop_out_level
         self.hedge = hedge
+        self.symbols_filename = symbols_filename
+        self.margin = 0.
 
         self.symbols_info: Dict[str, SymbolInfo] = {}
         self.symbols_data: Dict[str, pd.DataFrame] = {}
@@ -37,11 +42,9 @@ class MtSimulator:
             if not self.load_symbols(symbols_filename):
                 raise FileNotFoundError(f"file '{symbols_filename}' not found")
 
-
     @property
     def free_margin(self) -> float:
         return self.equity - self.margin
-
 
     @property
     def margin_level(self) -> float:
@@ -50,21 +53,18 @@ class MtSimulator:
             return float('inf')
         return self.equity / margin
 
-
     def download_data(
-            self, symbols: List[str], time_range: Tuple[datetime, datetime], timeframe: Timeframe
-        ) -> None:
+        self, symbols: List[str], time_range: Tuple[datetime, datetime], timeframe: Timeframe
+    ) -> None:
         from_dt, to_dt = time_range
         for symbol in symbols:
             si, df = retrieve_data(symbol, from_dt, to_dt, timeframe)
             self.symbols_info[symbol] = si
             self.symbols_data[symbol] = df
 
-
     def save_symbols(self, filename: str) -> None:
         with open(filename, 'wb') as file:
             pickle.dump((self.symbols_info, self.symbols_data), file)
-
 
     def load_symbols(self, filename: str) -> bool:
         if not os.path.exists(filename):
@@ -72,7 +72,6 @@ class MtSimulator:
         with open(filename, 'rb') as file:
             self.symbols_info, self.symbols_data = pickle.load(file)
         return True
-
 
     def tick(self, delta_time: timedelta=timedelta()) -> None:
         self._check_current_time()
@@ -94,7 +93,6 @@ class MtSimulator:
             self.balance = 0.
             self.equity = self.balance
 
-
     def nearest_time(self, symbol: str, time: datetime) -> datetime:
         df = self.symbols_data[symbol]
         if time in df.index:
@@ -105,12 +103,10 @@ class MtSimulator:
             i, = df.index.get_indexer([time], method='bfill')
         return df.index[i]
 
-
     def price_at(self, symbol: str, time: datetime) -> pd.Series:
         df = self.symbols_data[symbol]
         time = self.nearest_time(symbol, time)
         return df.loc[time]
-
 
     def symbol_orders(self, symbol: str) -> List[Order]:
         symbol_orders = list(filter(
@@ -118,19 +114,23 @@ class MtSimulator:
         ))
         return symbol_orders
 
-
-    def create_order(self, order_type: OrderType, symbol: str, volume: float, fee: float=0.0005) -> Order:
+    def create_order(
+        self, order_type: OrderType, symbol: str, volume: float, fee: float=0.0005,
+        raise_exception: bool = True
+    ) -> Optional[Order]:
         self._check_current_time()
         self._check_volume(symbol, volume)
         if fee < 0.:
             raise ValueError(f"negative fee '{fee}'")
 
         if self.hedge:
-            return self._create_hedged_order(order_type, symbol, volume, fee)
-        return self._create_unhedged_order(order_type, symbol, volume, fee)
+            return self._create_hedged_order(order_type, symbol, volume, fee, raise_exception)
+        return self._create_unhedged_order(order_type, symbol, volume, fee, raise_exception)
 
-
-    def _create_hedged_order(self, order_type: OrderType, symbol: str, volume: float, fee: float) -> Order:
+    def _create_hedged_order(
+        self, order_type: OrderType, symbol: str, volume: float, fee: float,
+        raise_exception: bool
+    ) -> Optional[Order]:
         order_id = len(self.closed_orders) + len(self.orders) + 1
         entry_time = self.current_time
         entry_price = self.price_at(symbol, entry_time)['Close']
@@ -145,25 +145,31 @@ class MtSimulator:
         self._update_order_margin(order)
 
         if order.margin > self.free_margin + order.profit:
-            raise ValueError(
-                f"low free margin (order margin={order.margin}, order profit={order.profit}, "
-                f"free margin={self.free_margin})"
-            )
+            if raise_exception:
+                raise ValueError(
+                    f"low free margin (order margin={order.margin}, order profit={order.profit}, "
+                    f"free margin={self.free_margin})"
+                )
+            return None
 
         self.equity += order.profit
         self.margin += order.margin
         self.orders.append(order)
         return order
 
-
-    def _create_unhedged_order(self, order_type: OrderType, symbol: str, volume: float, fee: float) -> Order:
+    def _create_unhedged_order(
+        self, order_type: OrderType, symbol: str, volume: float, fee: float,
+        raise_exception: bool
+    ) -> Optional[Order]:
         if symbol not in map(lambda order: order.symbol, self.orders):
-            return self._create_hedged_order(order_type, symbol, volume, fee)
+            return self._create_hedged_order(order_type, symbol, volume, fee, raise_exception)
 
         old_order: Order = self.symbol_orders(symbol)[0]
 
         if old_order.type == order_type:
-            new_order = self._create_hedged_order(order_type, symbol, volume, fee)
+            new_order = self._create_hedged_order(order_type, symbol, volume, fee, raise_exception)
+            if new_order is None:
+                return None
             self.orders.remove(new_order)
 
             entry_price_weighted_average = np.average(
@@ -197,7 +203,6 @@ class MtSimulator:
 
         return old_order
 
-
     def close_order(self, order: Order) -> float:
         self._check_current_time()
         if order not in self.orders:
@@ -210,11 +215,14 @@ class MtSimulator:
         self.balance += order.profit
         self.margin -= order.margin
 
+        order.exit_balance = self.balance
+        order.exit_equity = self.equity
+
         order.closed = True
         self.orders.remove(order)
         self.closed_orders.append(order)
-        return order.profit
 
+        return order.profit
 
     def get_state(self) -> Dict[str, Any]:
         orders = []
@@ -228,6 +236,8 @@ class MtSimulator:
                 'Entry Price': order.entry_price,
                 'Exit Time': order.exit_time,
                 'Exit Price': order.exit_price,
+                'Exit Balance': order.exit_balance,
+                'Exit Equity': order.exit_equity,
                 'Profit': order.profit,
                 'Margin': order.margin,
                 'Fee': order.fee,
@@ -245,20 +255,17 @@ class MtSimulator:
             'orders': orders_df,
         }
 
-
     def _update_order_profit(self, order: Order) -> None:
         diff = order.exit_price - order.entry_price
         v = order.volume * self.symbols_info[order.symbol].trade_contract_size
         local_profit = v * (order.type.sign * diff - order.fee)
         order.profit = local_profit * self._get_unit_ratio(order.symbol, order.exit_time)
 
-
     def _update_order_margin(self, order: Order) -> None:
         v = order.volume * self.symbols_info[order.symbol].trade_contract_size
         local_margin = (v * order.entry_price) / self.leverage
         local_margin *= self.symbols_info[order.symbol].margin_rate
         order.margin = local_margin * self._get_unit_ratio(order.symbol, order.entry_time)
-
 
     def _get_unit_ratio(self, symbol: str, time: datetime) -> float:
         symbol_info = self.symbols_info[symbol]
@@ -279,24 +286,23 @@ class MtSimulator:
 
         return unit_price
 
-
     def _get_unit_symbol_info(self, currency: str) -> Optional[SymbolInfo]:  # Unit/Currency or Currency/Unit
         for info in self.symbols_info.values():
             if currency in info.currencies and self.unit in info.currencies:
                 return info
         return None
 
-
     def _check_current_time(self) -> None:
         if self.current_time is NotImplemented:
             raise ValueError("'current_time' must have a value")
 
-
     def _check_volume(self, symbol: str, volume: float) -> None:
         symbol_info = self.symbols_info[symbol]
+
         if not (symbol_info.volume_min <= volume <= symbol_info.volume_max):
             raise ValueError(
                 f"'volume' must be in range [{symbol_info.volume_min}, {symbol_info.volume_max}]"
             )
+
         if not round(volume / symbol_info.volume_step, 6).is_integer():
             raise ValueError(f"'volume' must be a multiple of {symbol_info.volume_step}")

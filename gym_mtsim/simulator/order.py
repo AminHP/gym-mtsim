@@ -21,9 +21,15 @@ class Order:
 
     def __init__(
         self,
-        id: int, type: OrderType, symbol: str, volume: float, fee: float,
-        entry_time: datetime, entry_price: float,
-        exit_time: datetime, exit_price: float
+        id: int,
+        type: OrderType,
+        symbol: str,
+        volume: float,
+        fee: float,
+        entry_time: datetime,
+        entry_price: float,
+        exit_time: datetime,
+        exit_price: float,
     ) -> None:
 
         self.id = id
@@ -35,6 +41,8 @@ class Order:
         self.entry_price = entry_price
         self.exit_time = exit_time
         self.exit_price = exit_price
+        self.exit_balance = float('nan')
+        self.exit_equity = float('nan')
         self.profit = 0.
         self.margin = 0.
-        self.closed = False
+        self.closed: bool = False
