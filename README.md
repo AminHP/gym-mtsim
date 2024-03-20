@@ -255,6 +255,19 @@ state['orders']
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -267,6 +280,8 @@ state['orders']
       <th>Entry Price</th>
       <th>Exit Time</th>
       <th>Exit Price</th>
+      <th>Exit Balance</th>
+      <th>Exit Equity</th>
       <th>Profit</th>
       <th>Margin</th>
       <th>Fee</th>
@@ -284,6 +299,8 @@ state['orders']
       <td>110.02500</td>
       <td>2021-09-06 00:17:52+00:00</td>
       <td>109.71200</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>552.355257</td>
       <td>2000.000000</td>
       <td>0.0100</td>
@@ -299,6 +316,8 @@ state['orders']
       <td>1.73389</td>
       <td>2021-09-06 00:17:52+00:00</td>
       <td>1.73626</td>
+      <td>NaN</td>
+      <td>NaN</td>
       <td>165.225928</td>
       <td>1375.480933</td>
       <td>0.0003</td>
@@ -339,6 +358,19 @@ state['orders']
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -351,6 +383,8 @@ state['orders']
       <th>Entry Price</th>
       <th>Exit Time</th>
       <th>Exit Price</th>
+      <th>Exit Balance</th>
+      <th>Exit Equity</th>
       <th>Profit</th>
       <th>Margin</th>
       <th>Fee</th>
@@ -368,6 +402,8 @@ state['orders']
       <td>110.02500</td>
       <td>2021-09-06 00:17:52+00:00</td>
       <td>109.71200</td>
+      <td>10717.581186</td>
+      <td>10717.581186</td>
       <td>552.355257</td>
       <td>2000.000000</td>
       <td>0.0100</td>
@@ -383,6 +419,8 @@ state['orders']
       <td>1.73389</td>
       <td>2021-09-06 00:17:52+00:00</td>
       <td>1.73626</td>
+      <td>10165.225928</td>
+      <td>10717.581186</td>
       <td>165.225928</td>
       <td>1375.480933</td>
       <td>0.0003</td>
@@ -400,7 +438,7 @@ state['orders']
 
 
 ```python
-import gym
+import gymnasium as gym
 import gym_mtsim
 
 env = gym.make('forex-hedge-v0')
@@ -481,7 +519,8 @@ observation = env.reset()
 
 while True:
     action = env.action_space.sample()
-    observation, reward, done, info = env.step(action)
+    observation, reward, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
 
     if done:
         # print(info)
@@ -493,9 +532,9 @@ while True:
         break
 ```
 
-    balance: 9376.891775198916, equity: 9641.936625205548, margin: 3634.1077619051393
-    free_margin: 6007.828863300409, margin_level: 2.6531785122131852
-    step_reward: 140.93306243685583
+    balance: 18179.65219519348, equity: 18179.65219519348, margin: 0.0
+    free_margin: 18179.65219519348, margin_level: inf
+    step_reward: 0.0
     
 
 #### Render in *human* mode
@@ -511,8 +550,8 @@ print(
 state['orders']
 ```
 
-    balance: 9376.891775198916, equity: 9641.936625205548, margin: 3634.1077619051393
-    free_margin: 6007.828863300409, margin_level: 2.6531785122131852
+    balance: 18179.65219519348, equity: 18179.65219519348, margin: 0.0
+    free_margin: 18179.65219519348, margin_level: inf
     
     
 
@@ -520,6 +559,19 @@ state['orders']
 
 
 <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -532,6 +584,8 @@ state['orders']
       <th>Entry Price</th>
       <th>Exit Time</th>
       <th>Exit Price</th>
+      <th>Exit Balance</th>
+      <th>Exit Equity</th>
       <th>Profit</th>
       <th>Margin</th>
       <th>Fee</th>
@@ -541,172 +595,244 @@ state['orders']
   <tbody>
     <tr>
       <th>0</th>
-      <td>119</td>
-      <td>USDJPY</td>
+      <td>14</td>
+      <td>EURUSD</td>
       <td>Buy</td>
-      <td>1.12</td>
-      <td>2021-09-02 00:00:00+00:00</td>
-      <td>109.93700</td>
-      <td>2021-09-03 00:00:00+00:00</td>
-      <td>109.71200</td>
-      <td>-248.970123</td>
-      <td>1120.000000</td>
-      <td>0.018884</td>
-      <td>False</td>
+      <td>9.95</td>
+      <td>2021-08-27 00:00:00+00:00</td>
+      <td>1.17955</td>
+      <td>2021-08-31 00:00:00+00:00</td>
+      <td>1.18083</td>
+      <td>18179.652195</td>
+      <td>18179.652195</td>
+      <td>1052.554631</td>
+      <td>11736.522500</td>
+      <td>0.000222</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>118</td>
+      <td>13</td>
       <td>EURUSD</td>
       <td>Buy</td>
-      <td>0.24</td>
-      <td>2021-09-02 00:00:00+00:00</td>
-      <td>1.18744</td>
-      <td>2021-09-03 00:00:00+00:00</td>
-      <td>1.18772</td>
-      <td>-4.355531</td>
-      <td>284.985600</td>
-      <td>0.000461</td>
-      <td>False</td>
+      <td>0.22</td>
+      <td>2021-08-26 00:00:00+00:00</td>
+      <td>1.17515</td>
+      <td>2021-08-31 00:00:00+00:00</td>
+      <td>1.18083</td>
+      <td>17127.097565</td>
+      <td>18179.652195</td>
+      <td>120.009649</td>
+      <td>258.533000</td>
+      <td>0.000225</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>117</td>
-      <td>USDJPY</td>
-      <td>Sell</td>
-      <td>1.94</td>
-      <td>2021-09-01 00:00:00+00:00</td>
-      <td>110.02500</td>
-      <td>2021-09-03 00:00:00+00:00</td>
-      <td>109.71200</td>
-      <td>520.155098</td>
-      <td>1940.000000</td>
-      <td>0.018839</td>
-      <td>False</td>
+      <td>12</td>
+      <td>GBPCAD</td>
+      <td>Buy</td>
+      <td>7.10</td>
+      <td>2021-08-24 00:00:00+00:00</td>
+      <td>1.72784</td>
+      <td>2021-08-26 00:00:00+00:00</td>
+      <td>1.73770</td>
+      <td>17007.087916</td>
+      <td>17007.087916</td>
+      <td>5140.996853</td>
+      <td>9746.529273</td>
+      <td>0.000675</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>116</td>
-      <td>GBPCAD</td>
+      <td>11</td>
+      <td>EURUSD</td>
       <td>Sell</td>
-      <td>0.21</td>
-      <td>2021-09-01 00:00:00+00:00</td>
-      <td>1.73728</td>
-      <td>2021-09-03 00:00:00+00:00</td>
-      <td>1.73626</td>
-      <td>-1.784594</td>
-      <td>289.122162</td>
-      <td>0.001126</td>
-      <td>False</td>
+      <td>3.33</td>
+      <td>2021-08-20 00:00:00+00:00</td>
+      <td>1.16996</td>
+      <td>2021-08-23 00:00:00+00:00</td>
+      <td>1.17457</td>
+      <td>11866.091062</td>
+      <td>11866.091062</td>
+      <td>-1610.650324</td>
+      <td>3895.966800</td>
+      <td>0.000227</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>113</td>
-      <td>USDJPY</td>
-      <td>Sell</td>
-      <td>2.24</td>
-      <td>2021-08-30 00:00:00+00:00</td>
-      <td>109.91300</td>
-      <td>2021-09-01 00:00:00+00:00</td>
-      <td>110.02500</td>
-      <td>-258.362674</td>
-      <td>2240.000000</td>
-      <td>0.014903</td>
+      <td>10</td>
+      <td>GBPCAD</td>
+      <td>Buy</td>
+      <td>6.65</td>
+      <td>2021-07-30 00:00:00+00:00</td>
+      <td>1.73335</td>
+      <td>2021-08-02 00:00:00+00:00</td>
+      <td>1.73577</td>
+      <td>13476.741387</td>
+      <td>13476.741387</td>
+      <td>868.941338</td>
+      <td>9248.130601</td>
+      <td>0.000786</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>114</th>
-      <td>6</td>
-      <td>USDJPY</td>
+      <th>5</th>
+      <td>9</td>
+      <td>EURUSD</td>
       <td>Sell</td>
-      <td>1.03</td>
-      <td>2021-05-21 00:00:00+00:00</td>
-      <td>108.94500</td>
-      <td>2021-05-24 00:00:00+00:00</td>
-      <td>108.74000</td>
-      <td>173.893295</td>
-      <td>1030.000000</td>
-      <td>0.021416</td>
+      <td>0.26</td>
+      <td>2021-07-21 00:00:00+00:00</td>
+      <td>1.17946</td>
+      <td>2021-07-22 00:00:00+00:00</td>
+      <td>1.17707</td>
+      <td>12607.800048</td>
+      <td>12607.800048</td>
+      <td>56.809064</td>
+      <td>306.659600</td>
+      <td>0.000205</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>115</th>
-      <td>3</td>
+      <th>6</th>
+      <td>8</td>
+      <td>USDJPY</td>
+      <td>Buy</td>
+      <td>7.11</td>
+      <td>2021-07-12 00:00:00+00:00</td>
+      <td>110.34900</td>
+      <td>2021-07-16 00:00:00+00:00</td>
+      <td>110.08100</td>
+      <td>12550.990984</td>
+      <td>12550.990984</td>
+      <td>-1850.301309</td>
+      <td>7110.000000</td>
+      <td>0.018474</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>7</td>
       <td>EURUSD</td>
       <td>Buy</td>
-      <td>0.86</td>
-      <td>2021-05-19 00:00:00+00:00</td>
-      <td>1.21744</td>
-      <td>2021-05-24 00:00:00+00:00</td>
-      <td>1.22150</td>
-      <td>352.419311</td>
-      <td>1046.998400</td>
-      <td>-0.000038</td>
+      <td>4.23</td>
+      <td>2021-07-07 00:00:00+00:00</td>
+      <td>1.17903</td>
+      <td>2021-07-09 00:00:00+00:00</td>
+      <td>1.18774</td>
+      <td>14401.292293</td>
+      <td>14401.292293</td>
+      <td>3618.699910</td>
+      <td>4987.296900</td>
+      <td>0.000155</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>116</th>
-      <td>5</td>
+      <th>8</th>
+      <td>6</td>
       <td>GBPCAD</td>
       <td>Sell</td>
-      <td>0.94</td>
-      <td>2021-05-21 00:00:00+00:00</td>
-      <td>1.70726</td>
-      <td>2021-05-24 00:00:00+00:00</td>
-      <td>1.70440</td>
-      <td>174.119943</td>
-      <td>1330.148695</td>
-      <td>0.000629</td>
+      <td>2.77</td>
+      <td>2021-07-02 00:00:00+00:00</td>
+      <td>1.70511</td>
+      <td>2021-07-05 00:00:00+00:00</td>
+      <td>1.70716</td>
+      <td>10782.592383</td>
+      <td>10782.592383</td>
+      <td>-612.337927</td>
+      <td>3831.428119</td>
+      <td>0.000678</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>117</th>
-      <td>1</td>
+      <th>9</th>
+      <td>5</td>
+      <td>EURUSD</td>
+      <td>Sell</td>
+      <td>6.07</td>
+      <td>2021-06-21 00:00:00+00:00</td>
+      <td>1.19185</td>
+      <td>2021-06-22 00:00:00+00:00</td>
+      <td>1.19413</td>
+      <td>11394.930310</td>
+      <td>11394.930310</td>
+      <td>-1512.813611</td>
+      <td>7234.529500</td>
+      <td>0.000212</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>4</td>
+      <td>USDJPY</td>
+      <td>Buy</td>
+      <td>4.18</td>
+      <td>2021-06-11 00:00:00+00:00</td>
+      <td>109.68200</td>
+      <td>2021-06-17 00:00:00+00:00</td>
+      <td>110.22100</td>
+      <td>12907.743921</td>
+      <td>12907.743921</td>
+      <td>1980.439673</td>
+      <td>4180.000000</td>
+      <td>0.016785</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>3</td>
       <td>GBPCAD</td>
       <td>Buy</td>
-      <td>1.45</td>
-      <td>2021-05-18 00:00:00+00:00</td>
-      <td>1.71128</td>
-      <td>2021-05-24 00:00:00+00:00</td>
-      <td>1.70440</td>
-      <td>-961.496723</td>
-      <td>2056.809874</td>
-      <td>0.001105</td>
+      <td>5.58</td>
+      <td>2021-06-01 00:00:00+00:00</td>
+      <td>1.70755</td>
+      <td>2021-06-02 00:00:00+00:00</td>
+      <td>1.70462</td>
+      <td>10927.304248</td>
+      <td>10927.304248</td>
+      <td>-1678.531017</td>
+      <td>7894.516666</td>
+      <td>0.000689</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>118</th>
+      <th>12</th>
       <td>2</td>
-      <td>GBPCAD</td>
+      <td>EURUSD</td>
+      <td>Buy</td>
+      <td>2.65</td>
+      <td>2021-05-26 00:00:00+00:00</td>
+      <td>1.21922</td>
+      <td>2021-05-28 00:00:00+00:00</td>
+      <td>1.21896</td>
+      <td>12605.835265</td>
+      <td>12605.835265</td>
+      <td>-130.546444</td>
+      <td>3230.933000</td>
+      <td>0.000233</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>1</td>
+      <td>USDJPY</td>
       <td>Sell</td>
-      <td>0.58</td>
+      <td>6.73</td>
       <td>2021-05-19 00:00:00+00:00</td>
-      <td>1.71211</td>
-      <td>2021-05-21 00:00:00+00:00</td>
-      <td>1.70726</td>
-      <td>219.514676</td>
-      <td>818.590377</td>
-      <td>0.000284</td>
+      <td>109.22700</td>
+      <td>2021-05-20 00:00:00+00:00</td>
+      <td>108.76700</td>
+      <td>12736.381709</td>
+      <td>12736.381709</td>
+      <td>2736.381709</td>
+      <td>6730.000000</td>
+      <td>0.017759</td>
       <td>True</td>
     </tr>
   </tbody>
 </table>
-<p>119 rows × 12 columns</p>
 </div>
 
 
@@ -741,16 +867,16 @@ env.render('advanced_figure', time_format="%Y-%m-%d")
 ```
 
 
-
+    
 ![png](doc/output_30_0.png)
-
+    
 
 
 ### A Complete Example using `stable-baselines`
 
 
 ```python
-import gym
+import gymnasium as gym
 from gym_mtsim import (
     Timeframe, SymbolInfo,
     MtSimulator, OrderType, Order, SymbolNotFound, OrderNotFound,
@@ -758,27 +884,40 @@ from gym_mtsim import (
     FOREX_DATA_PATH, STOCKS_DATA_PATH, CRYPTO_DATA_PATH, MIXED_DATA_PATH,
 )
 from stable_baselines3 import A2C
+from stable_baselines3.common.vec_env import DummyVecEnv
+import random
+import numpy as np
+import torch
 
+env_name = 'forex-hedge-v0'
 
-# env = gym.make('forex-hedge-v0')
+# reproduce training and test
+seed = 2024
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
 
+env = gym.make(env_name)
 model = A2C('MultiInputPolicy', env, verbose=0)
 model.learn(total_timesteps=1000)
 
-observation = env.reset()
+observation, info = env.reset(seed=seed)
+
 while True:
     action, _states = model.predict(observation)
-    observation, reward, done, info = env.step(action)
+    observation, reward, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
+
     if done:
         break
 
-env.render('advanced_figure', time_format="%Y-%m-%d")
+env.unwrapped.render('advanced_figure', time_format='%Y-%m-%d')
 ```
 
 
-
+    
 ![png](doc/output_32_0.png)
-
+    
 
 
 ## References
